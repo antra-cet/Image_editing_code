@@ -1,0 +1,76 @@
+//Bivolaru Andra 313 CA
+image_editor
+
+EXPLICATIE VARIABILE:
+
+	i, j = varianile contor, folosite in general in for()
+	command = variabila char, care retine comanda introdusa de la tastatura
+	filename = retine numele fisierului din care se citeste/ in care se scrie
+	photo = structura ce retine toate elementele importante din fisierul citit
+	coord = coordonatele zonei selectate
+
+EXPLICARE FUNCTII DIN FISIERUL functions.c:
+	
+-valid_command():
+	Aceasta functie returneaza 1 daca este LOAD/ROTATE/CROP/... si 0 in caz contrar. Daca nu este valida comanda, se ignora toata linia scrisa in continuarea acesteia.
+
+-transform_into_number():
+	Schimba numarul retinut de un sir de caractere intr-o variabila de tip intreg. Spre exemplu daca char s[10] = {1, 9, 7, 2}, atunci transform_into_number(s) = 1972. Variabila k este folosita pentru a verifica daca numarul care este transormat apare la sfasitul unei linii sau nu. Daca acesta este ultimul de pe linie, k = 0 si retine ultimul caracter "\n" care trebuie ignorat. Daca acesta apare in interiorul unei linii atunci k = 1, si sunt luate in considerare toate caracterele.
+
+-verify_coordinates():
+	Aceasta functie returneaza 0 in cazul in care este selectata toata imaginea si 1 in caz contrar. De asemenea, ordoneaza crescator variabilele x1,x2 si separat y1, y2.
+	
+-rounded():
+	Aceasta functie rotunjeste un numar rational la cel mai apropiat numar intreg. Ea este apelata de GRAYSCALE si SEPIA.
+	
+
+-LOAD():
+	Returneaza 0 daca fisierul introdus nu exista si 1 daca acesta poate fi "loaded"
+
+-read_parametres():
+	Aceasta functie schimba in memorie variabilele photo.type, photo.number, photo.col si photo.lin si in unele cazuri photo.max_pixel. La sfarsit retine si matricea imaginii (photo.image) alocand memoria necesara.
+	Citirea parametriilor a fost gandita in sensul in care in total trebuie cititi 3 maxim 4 parametrii. Atunci cand este gasita o linie ce incepe cu "#", ea este ignorata. Pe urma, atunci cand gaseste prima linie ce nu este un comentariu aceasta contine tipul imaginii (P1, P2, ...). Variabila contor retine cate linii folositoare au fost citite. Pe a doua linie ce nu este comentariu sunt retinute numarul de coloane si linii iar pe ultima (in unele cazuri) numarul maxim de pixel.
+	La sfarsit se aloca memoria necesara pentru matricea imagine si este citita din fisier (ori text ori binar).
+
+-SELECT():
+	Select verfica daca exista coordonatele introduse in cadrul matricei si daca aceste nu exista se va selecta automat toata matricea.
+
+-SELECT_ALL():
+	Initializeaza coordonatele cu -1 si afiseaza mesajul corespunzator.
+
+-rotate_r_all():
+	Roteste toata matricea spre dreapta. Exista doua cazuri pentru aceasta rotire, daca imaginea este color si daca nu. La baza cele doua au aceeasi idee: se construieste o copie care retine imaginea rotita, memoria pentru photo.image va fi realocata si dupa photo.image isi va schimba valorile cu cele din copie.
+
+-rotate_l():
+	Analog cu rotate_r_all, vor fi doua cazuri dar ambele au la baza aceeasi idee. Se considera o matrice patratica. Cea transpusa va fi rezultatul interschimbarii a cate 4 elemente din matrice, reluate de mai multe ori. Se vor schimba de lungimea liniilor / 2 ori elemente care sunt egal departate unul de celalalt.
+
+-ROTATE():
+	Apeleaza functiile rotate_l si rotate_r_allcde oricate ori necesar pentru a ajunge la unghiul necesar.
+	
+-CROP():
+	Schimba numarul de coloane si de linii asociate matricei image, iar cu ajutorul unei matrice copie care retine zona taiata, image va fi schimbata cu elementele din copie.
+	
+-GRAYSCALE() si SEPIA():
+	Schimba pizelii de rosu, verde si albastru printr-o formula data. Daca poza data nu este color atunci nu se poate aplica acest filtru.
+	
+-SAVE():
+	In fisierul filename scrie pe prima linie tipul imaginii, pe a doua numarul de coloane si de linii din imagine, iar, la sfarsit matrice imagine.
+
+-close():
+	inchide fisierele
+-free_alloc_mem():
+	elibereaza zona de memorie alocata pentru filename si poza;	
+
+EXPLICARE MAIN():
+
+	Functia main in primul rand declara poinerii in, out catre fisierele din care se citeste sau scrie. De asemenea, se aloca memorie pentru filename si se retine static command[].
+	Cat timp sunt introduse comenzi de la tastatura, diferite de comanda EXIT, se va continua citirea comenzilor.
+	In primul rand, se verifica daca este valida comanda introdusa la tastatura. Functia valid_command().
+	In cazul in care se introduce comanda LOAD, coordonatele sunt initializate cu -1 (zona de selectie acopera toata imaginea), este citit numele fisierului, si este apelata functia LOAD().
+	Daca este introdusa comanda SELECT, cu ajutorul sirulu de caractere all, se verifica daca nu cimva comanda este SELECT ALL. Daca all va retine sirul ALL, se apeleaza functia SELECT_ALL(), altfel coordonata coor.x1 va retine transformarea sirului de caractere intr-un numar intreg, iar coord.y1, coord.x2, coord.y2 vor fi citite de la tastatura ca intregi, iar la sfarsit se apeleaza functia SELECT().
+	Daca este introdusa comanda ROTATE se verifica daca a fost LOAD un fisier , pe urma citeste unghiul de rotatie si aplica ROTATE() in cazul in care toate datele sunt corecte.
+	Daca este introdusa comanda CROP verifica daca a fost LOAD un fisier, si daca nu este selectata toata imaginea atunci se apeleaza functia CROP() pentru a face modificarile cerute.
+	Pentru comanda GRAYSCALE sau SEPIA, la fel, se verifica daca a fost introdus vreun fisier, si daca da atunci se produc modificarile cerute.
+	Pentru SAVE, se citeste toata linia si cu strtok, se citeste numele fisierului si daca a fost sau nu introdusa si comanda "ascii", facand modificarile necesare.
+	La sfarsit, cand este introdusa comanda EXIT, sunt eliberate zonele de memorie si inchise fisierele diferite de NULL.
+	
